@@ -1,0 +1,17 @@
+[project]
+name = "blax-ml-mcp"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "blaxel>=0.2.25",
+    "gradio[mcp]>=6.0.1",
+    "httpx>=0.28.1",
+    "pydantic>=2.12.4",
+    "pydantic-settings>=2.12.0",
+]
+
+[dependency-groups]
+dev = ["pre-commit>=4.6.0", "ruff>=0.15.14"]
+
+[tool.ruff.lint]
+select = ["E", "F", "UP", "B", "SIM", "I"]

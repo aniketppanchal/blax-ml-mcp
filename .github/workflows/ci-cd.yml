@@ -1,0 +1,63 @@
+name: Lint and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/ruff-action@v4.0.0
+
+      - name: Run ruff check
+        run: ruff check
+
+      - name: Run ruff format
+        run: ruff format --check
+
+  deploy:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepend README header
+        run: |
+          cat - README.md > /tmp/README.md << 'EOF'
+          ---
+          title: BlaxML MCP
+          emoji: 🏀
+          colorFrom: red
+          colorTo: yellow
+          sdk: docker
+          pinned: true
+          license: mit
+          short_description: Autonomous Machine Learning MCP server powered by Blaxel.
+          tags:
+            - blaxel
+            - building-mcp-track-enterprise
+            - building-mcp-track-consumer
+            - building-mcp-track-creative
+          ---
+
+          EOF
+          mv /tmp/README.md README.md
+
+      - name: Commit README header
+        run: |
+          git config user.email "github-actions@github.com"
+          git config user.name "GitHub Actions"
+          git add README.md
+          git commit -m "Prepend README header"
+
+      - name: Push to Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git remote add hf https://user:$HF_TOKEN@huggingface.co/spaces/aniketppanchal/BlaxML-MCP
+          git push hf main --force
